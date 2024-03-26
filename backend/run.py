@@ -79,8 +79,9 @@ def story_endpoint():
         location = request.args.get('location')
         cursor.execute("SELECT story FROM stories WHERE id = (SELECT MIN(id) FROM stories WHERE location= \"{}\");".format(location))
         result = cursor.fetchall()
+        response = {"prompt": result[0][0]}
         cursor.close()
-        return jsonify(result), 200
+        return jsonify(response), 200
 
     return "success", 200
 

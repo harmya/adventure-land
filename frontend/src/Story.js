@@ -6,6 +6,7 @@ import {useState} from 'react';
 function Story() {
     const location = useLocation();
     const storyLocation = location.state.location
+    const [firstStoryPrompt, setfirstStoryPrompt] = useState('');
     
     const getInitialStory = async () => {
         console.log(storyLocation);
@@ -16,7 +17,7 @@ function Story() {
             }
         }).then(response => response.json())
         .then(data => {
-            console.log(data)
+            setfirstStoryPrompt(data['prompt']);
         })
         .catch(error => {console.log(error);});
     }
@@ -31,6 +32,13 @@ function Story() {
                 onComplete={getInitialStory}
                 />
             </h1>
+            <p>
+                <ReactTyped 
+                strings={["{}".replace("{}", firstStoryPrompt)]}
+                typeSpeed={20}
+                showCursor={false}
+                />
+            </p>
         </div>
     );
 }
