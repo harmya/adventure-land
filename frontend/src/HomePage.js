@@ -2,8 +2,10 @@ import { ReactTyped } from 'react-typed';
 import { useLocation } from 'react-router-dom';
 import './homepage.css';
 import {useState} from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function HomePage() {
+    const navigate = useNavigate();
     const location = useLocation();
     const username = location.state.username;
     const [gotStoryOptions, setGotStoryOptions] = useState(false);
@@ -28,7 +30,7 @@ function HomePage() {
     const handleStoryOption = async (event) => {
         if (event.key === 'Enter') {
             const location = event.target.value;
-            console.log(location);
+            navigate('/story', {state: {username: username, location: location}});
         }
     }
 
