@@ -72,5 +72,17 @@ def stories_endpoint():
     
     return "success", 200
 
+@app.route('/api/story/first', methods=['GET', 'POST'])
+def story_endpoint():
+    if request.method == 'GET':
+        cursor = conn.cursor()
+        cursor.execute("SELECT story FROM stories WHERE id = (SELECT MIN(id) FROM stories WHERE location = %s")
+        result = cursor.fetchall()
+        print(result)
+        cursor.close()
+        return jsonify(result), 200
+
+    return "success", 200
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
