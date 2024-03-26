@@ -57,7 +57,6 @@ def items_endpoint():
         
         return "success", 200
 
-
 @app.route('/api/stories', methods=['GET', 'POST'])
 def stories_endpoint():
     print("Getting stories")
@@ -72,6 +71,6 @@ def stories_endpoint():
         return jsonify(result), 200
     
     return "success", 200
-    
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

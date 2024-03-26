@@ -61,14 +61,13 @@ function HomePage() {
                             strings={[story]}
                             typeSpeed={40}
                             showCursor={false}
-                            onComplete={finshedStoryOption}
+                            onComplete={finishedStoryOptionFunc}
                         />
                     </li>
                 ))}
             </ul>
-            <input className="location-input" type="text" ref={input => input && input.focus()} onKeyDown={handleStoryOption} />
+            <input className="location-input" type="text" ref={input => input && input.focus()} onKeyDown={handleStoryOption} style={{display: finishedStoryOption ? 'block' : 'none'}}/>
         </div>
-
     </div>
   );
 
