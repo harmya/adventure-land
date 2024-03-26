@@ -9,14 +9,19 @@ function Story() {
     console.log(location);
 
     const getInitialStory = async () => {
-        const response = await fetch('http://localhost:5000/api/story/first', {
+        const response = await fetch('http://127.0.0.1:5000/api/story/first', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
+            },
+            args: {
+                location: storyLocation
             }
-        });
-        const data = await response.json();
-        console.log(data);
+        }).then(response => response.json())
+        .then(data => {
+            console.log(data)
+        })
+        .catch(error => {console.log(error);});
     }
 
     return (
@@ -26,7 +31,7 @@ function Story() {
                 strings={["Once upon a time in {}...".replace("{}", storyLocation)]}
                 typeSpeed={40}
                 showCursor={false}
-                on
+                onComplete={getInitialStory}
                 />
             </h1>
         </div>

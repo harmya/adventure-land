@@ -76,7 +76,7 @@ def stories_endpoint():
 def story_endpoint():
     if request.method == 'GET':
         cursor = conn.cursor()
-        cursor.execute("SELECT story FROM stories WHERE id = (SELECT MIN(id) FROM stories WHERE location = %s")
+        cursor.execute("SELECT story FROM stories WHERE id = (SELECT MIN(id) FROM stories WHERE location = \"{}\")".format(request.args.get('location')))
         result = cursor.fetchall()
         print(result)
         cursor.close()
