@@ -6,16 +6,13 @@ import {useState} from 'react';
 function Story() {
     const location = useLocation();
     const storyLocation = location.state.location
-    console.log(location);
-
+    
     const getInitialStory = async () => {
-        const response = await fetch('http://127.0.0.1:5000/api/story/first', {
+        console.log(storyLocation);
+        const response = await fetch('http://127.0.0.1:5000/api/story/first?location=' + storyLocation, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
-            },
-            args: {
-                location: storyLocation
             }
         }).then(response => response.json())
         .then(data => {
