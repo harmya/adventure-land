@@ -17,7 +17,6 @@ DB_NAME = config['DB_NAME']
 connector = Connector()
 
 conn = connector.connect(DB_CONNECTION_NAME, "pymysql", user=DB_USER, password=DB_PASSWORD, db=DB_NAME)
-
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
 
@@ -36,7 +35,7 @@ def items_endpoint():
         password = str(item['password'])
         encrypted_password = hashlib.sha256(password.encode()).hexdigest()
         encrypted_password = bytes(encrypted_password, 'utf-8')
-
+        print(encrypted_password)
         cursor = conn.cursor()
         if not isNewUser:
             cursor.execute("SELECT * FROM users WHERE username = %s AND password = %s", (username, encrypted_password))
