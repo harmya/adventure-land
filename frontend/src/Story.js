@@ -7,6 +7,7 @@ function Story() {
     const location = useLocation();
     const storyLocation = location.state.location
     const [firstStoryPrompt, setfirstStoryPrompt] = useState('');
+    const [firstChoice, setFirstChoice] = useState('');
     
     const getInitialStory = async () => {
         console.log(storyLocation);
@@ -14,10 +15,23 @@ function Story() {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
-            }
+            },
         }).then(response => response.json())
         .then(data => {
             setfirstStoryPrompt(data['prompt']);
+        })
+        .catch(error => {console.log(error);});
+    }
+
+    const getFirstChoice = async () => {
+        const response = await fetch('http://127.0.0.1:5000/api/story/choices?choice=' + 0, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(response => response.json())
+        .then(data => {
+            setFirstChoice(data['choice']);
         })
         .catch(error => {console.log(error);});
     }
@@ -37,11 +51,19 @@ function Story() {
                 strings={["{}".replace("{}", firstStoryPrompt)]}
                 typeSpeed={20}
                 showCursor={false}
+                onComplete={getFirstChoice}
                 />
             </p>
+
+            <div className="choices">
+                <ReactTyped
+                strings={["{}".replace("{}", firstChoice)]}
+                typeSpeed={20}
+                showCursor={false}
+                />
+            </div>
         </div>
     );
 }
 
 export default Story;
-    
