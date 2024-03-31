@@ -106,6 +106,18 @@ def change_password():
 
     return "success", 200
 
+@app.route('/api/deleteaccount', methods=['GET', 'POST'])
+def delete_account():
+    if request.method == 'POST':
+        cursor = conn.cursor()
+        item = request.get_json()
+        username = item['username']
+        
+        cursor.execute("DELETE FROM users WHERE username = %s", (username))
+        conn.commit()
+        cursor.close()
+        return jsonify({"success": True}), 200
+
 @app.route('/api/story/choices', methods=['GET', 'POST'])
 def get_choices():
     if request.method == 'GET':

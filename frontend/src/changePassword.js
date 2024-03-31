@@ -2,11 +2,14 @@ import { ReactTyped } from 'react-typed';
 import { useLocation } from 'react-router-dom';
 import './password.css';
 import {useState} from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function ChangePassword() {
     const location = useLocation();
+    const navigate = useNavigate();
     const username = location.state.username;
     const [correctOldPassword, setCorrectOldPassword] = useState(false);
+
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -23,6 +26,21 @@ function ChangePassword() {
         }).then(response => response.json())
         .then(data => {
             console.log(data);
+        })
+        .catch(error => {console.log(error);});
+    }
+
+    const deleteAccount = async () => {
+        const response = await fetch('http://127.0.0.1:5000/api/deleteaccount', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({username: username})
+        }).then(response => response.json())
+        .then(data => {
+            console.log(data);
+            navigate('/');
         })
         .catch(error => {console.log(error);});
     }
@@ -46,6 +64,10 @@ function ChangePassword() {
 
                 <button type="submit">Submit</button>
             </form>
+
+            <h2 onClick={deleteAccount}>
+                Delete Account
+            </h2>
         </div>
     );
 }
