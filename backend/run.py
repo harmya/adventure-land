@@ -84,5 +84,48 @@ def story_endpoint():
 
     return "success", 200
 
+@app.route('/api/changepassword', methods=['GET', 'POST'])
+def change_password():
+    if request.method == 'POST':
+        cursor = conn.cursor()
+        item = request.get_json()
+        username = item['username']
+        old_password = item['oldPassword']
+        new_password = item['newPassword']
+        old_password = hashlib.sha256(old_password.encode()).hexdigest()
+        new_password = hashlib.sha256(new_password.encode()).hexdigest()
+        cursor.execute("SELECT * FROM users WHERE username = %s AND password = %s", (username, old_password))
+        result = cursor.fetchall()
+        if len(result) == 0:
+            return jsonify({"success": False}), 200
+        else:
+            cursor.execute("UPDATE users SET password = %s WHERE username = %s", (new_password, username))
+            conn.commit()
+            cursor.close()
+            return jsonify({"success": True}), 200
+
+    return "success", 200
+
+@app.route('/api/story/choices', methods=['GET', 'POST'])
+def get_choices():
+    if request.method == 'GET':
+        cursor = conn.cursor()
+        choice = request.args.get('choice')
+        cursor.execute("SELECT nextChoies FROM choiceMap WHERE choice = \"{}\";".format(choice))
+        result = cursor.fetchall()
+        choice = result[0][0]
+        choice = choice.split(' ')
+        choices = []
+        for c in choice:
+            cursor.execute("SELECT text FROM choices WHERE id = {};".format(c))
+            result = cursor.fetchall()
+            choices.append(result[0][0])
+        response = {"choices": choices}
+        cursor.close()
+        return jsonify(response), 200
+
+    return "success", 200
+
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

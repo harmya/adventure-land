@@ -38,8 +38,15 @@ function HomePage() {
         setFinishedStoryOption(true);
     }
 
+    const changePassword = () => {
+        navigate('/changepassword', {state: {username: username}});
+    }
+
   return (
     <div className="homepage">
+        <div className="top-bar">
+            <button className="change-password-button" onClick={changePassword}>Change Password</button>
+        </div>
         <h1>
             <ReactTyped 
             strings={['Hello ' + username + '!']}

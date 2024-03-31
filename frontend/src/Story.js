@@ -7,10 +7,10 @@ function Story() {
     const location = useLocation();
     const storyLocation = location.state.location
     const [firstStoryPrompt, setfirstStoryPrompt] = useState('');
-    const [firstChoice, setFirstChoice] = useState('');
+    const [firstChoice, setFirstChoice] = useState([]);
+    const [gotChoices, setGotChoices] = useState(false);
     
     const getInitialStory = async () => {
-        console.log(storyLocation);
         const response = await fetch('http://127.0.0.1:5000/api/story/first?location=' + storyLocation, {
             method: 'GET',
             headers: {
@@ -24,6 +24,7 @@ function Story() {
     }
 
     const getFirstChoice = async () => {
+        console.log('getting first choice');
         const response = await fetch('http://127.0.0.1:5000/api/story/choices?choice=' + 0, {
             method: 'GET',
             headers: {
@@ -31,7 +32,8 @@ function Story() {
             }
         }).then(response => response.json())
         .then(data => {
-            setFirstChoice(data['choice']);
+            setFirstChoice(data['choices']);
+            setGotChoices(true);
         })
         .catch(error => {console.log(error);});
     }
@@ -41,7 +43,7 @@ function Story() {
             <h1>
                 <ReactTyped 
                 strings={["Once upon a time in {}...".replace("{}", storyLocation)]}
-                typeSpeed={40}
+                typeSpeed={10}
                 showCursor={false}
                 onComplete={getInitialStory}
                 />
@@ -49,19 +51,30 @@ function Story() {
             <p>
                 <ReactTyped 
                 strings={["{}".replace("{}", firstStoryPrompt)]}
-                typeSpeed={20}
+                typeSpeed={5}
                 showCursor={false}
                 onComplete={getFirstChoice}
                 />
             </p>
-
-            <div className="choices">
-                <ReactTyped
-                strings={["{}".replace("{}", firstChoice)]}
+            <p>
+                <ReactTyped 
+                strings={['Choose your next move:']}
                 typeSpeed={20}
                 showCursor={false}
-                />
-            </div>
+            />
+            </p>
+            <ul style={{listStyleType: 'none', display: gotChoices ? 'block' : 'none'}}>
+                {firstChoice.map((choice, index) => (
+                
+                    <li key={index}>
+                        <ReactTyped
+                        strings={["{}".replace("{}", choice)]}
+                        typeSpeed={40}
+                        showCursor={false}
+                    />
+                    </li>
+                ))}
+            </ul>
         </div>
     );
 }
