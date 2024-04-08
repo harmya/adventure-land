@@ -2,11 +2,6 @@ from google.cloud.sql.connector import Connector
 import sqlalchemy
 import pymysql
 
-DB_USER = 'haru'
-DB_PASSWORD = 'password'
-DB_NAME = 'adventure-land-data'
-DB_CONNECTION_NAME = 'adventure-land-418000:us-central1:adventure-land'
-
 connector = Connector()
 
 conn = connector.connect(DB_CONNECTION_NAME, "pymysql", user=DB_USER, password=DB_PASSWORD, db=DB_NAME)
