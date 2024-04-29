@@ -7,6 +7,7 @@ import pymysql
 import hashlib
 import dotenv
 from flask_sqlalchemy import SQLAlchemy
+import datetime
 
 dotenv.load_dotenv()
 config = dotenv.dotenv_values()
@@ -22,21 +23,8 @@ conn = connector.connect(DB_CONNECTION_NAME, "pymysql", user=DB_USER, password=D
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = (
-    f"mysql+pymysql://{config['DB_USER']}:{config['DB_PASSWORD']}"
-    f"@/{config['DB_NAME']}?unix_socket=/cloudsql/{config['DB_CONNECTION_NAME']}"
-)
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db = SQLAlchemy(app)
 
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(80), nullable=False)
-
-    def __repr__(self):
-        return '<User %r>' % self.username
 
 @app.route('/api/login', methods=['POST'])
 def items_endpoint():
@@ -56,7 +44,7 @@ def items_endpoint():
         print(encrypted_password)
         cursor = conn.cursor()
         if not isNewUser:
-            cursor.execute("SELECT * FROM users WHERE username = %s AND password = %s", (username, encrypted_password))
+            cursor.callproc('check_user_credentials', [username, encrypted_password])
             result = cursor.fetchall()
             cursor.close()
             print(result)
@@ -67,7 +55,7 @@ def items_endpoint():
         
         if isNewUser:
             print("Creating new user")
-            cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (username, encrypted_password))
+            cursor.callproc('insert_new_user', [username, encrypted_password])
             conn.commit()
             cursor.close()
             return jsonify({"login": True, "username": username}), 200
@@ -96,7 +84,14 @@ def story_endpoint():
         location = request.args.get('location')
         cursor.execute("SELECT story FROM stories WHERE id = (SELECT MIN(id) FROM stories WHERE location= \"{}\");".format(location))
         result = cursor.fetchall()
+        print(result[0][0])
         response = {"prompt": result[0][0]}
+        username = request.args.get('username')
+        if username is not None:
+            timestamp = datetime.datetime.now()
+            cursor.execute("INSERT INTO userHistory (username, location, timestamp) VALUES (%s, %s, %s)", (username, location, timestamp))
+            conn.commit()
+        
         cursor.close()
         return jsonify(response), 200
 
@@ -136,6 +131,21 @@ def delete_account():
         cursor.close()
         return jsonify({"success": True}), 200
 
+@app.route('/api/history', methods=['GET', 'POST'])
+def get_history():
+    if request.method == 'POST':
+        cursor = conn.cursor()
+        username = request.args.get('username')
+        range_start = request.args.get('rangeStart')
+        range_end = request.args.get('rangeEnd')
+        print(range_start)
+        print(range_end)
+        range_start = datetime.datetime.strptime(range_start, "%Y-%m-%d")
+        range_end = datetime.datetime.strptime(range_end, "%Y-%m-%d")
+        cursor.execute("SELECT location, timestamp FROM userHistory WHERE username = %s AND timestamp BETWEEN %s AND %s", (username, range_start, range_end))
+        result = cursor.fetchall()
+        print(result)
+
 @app.route('/api/story/choices', methods=['GET', 'POST'])
 def get_choices():
     if request.method == 'GET':
@@ -155,7 +165,6 @@ def get_choices():
         return jsonify(response), 200
 
     return "success", 200
-
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

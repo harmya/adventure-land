@@ -6,8 +6,10 @@ import reportWebVitals from './reportWebVitals';
 import {default as Login} from './Login';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import HomePage from './HomePage';
+import ViewHistory from './viewHistory';
 import ChangePassword from './changePassword';
 import Story from './Story';
+
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -19,6 +21,7 @@ root.render(
         <Route path="/home" element={<HomePage />} />
         <Route path="/story" element={<Story />} />
         <Route path="/changepassword" element={<ChangePassword />} />
+        <Route path="/viewhistory" element={<ViewHistory />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>

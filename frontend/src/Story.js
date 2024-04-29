@@ -11,7 +11,8 @@ function Story() {
     const [gotChoices, setGotChoices] = useState(false);
     
     const getInitialStory = async () => {
-        const response = await fetch('http://127.0.0.1:5000/api/story/first?location=' + storyLocation, {
+        const response = await fetch('http://127.0.0.1:5000/api/story/first?location=' + storyLocation + 
+            '&username=' + location.state.username, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'

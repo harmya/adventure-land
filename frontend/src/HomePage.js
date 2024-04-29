@@ -46,6 +46,7 @@ function HomePage() {
     <div className="homepage">
         <div className="top-bar">
             <button className="change-password-button" onClick={changePassword}>Change Password</button>
+            <button className="change-password-button" onClick={() => navigate('/viewhistory', {state: {username: username}})}>View History</button>
         </div>
         <h1>
             <ReactTyped 
