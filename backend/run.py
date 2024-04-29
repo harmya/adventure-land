@@ -6,9 +6,11 @@ import sqlalchemy
 import pymysql
 import hashlib
 import dotenv
+from flask_sqlalchemy import SQLAlchemy
 
 dotenv.load_dotenv()
 config = dotenv.dotenv_values()
+
 DB_CONNECTION_NAME = config['DB_CONNECTION_NAME']
 DB_USER = config['DB_USER']
 DB_PASSWORD = config['DB_PASSWORD']
@@ -19,6 +21,22 @@ connector = Connector()
 conn = connector.connect(DB_CONNECTION_NAME, "pymysql", user=DB_USER, password=DB_PASSWORD, db=DB_NAME)
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = (
+    f"mysql+pymysql://{config['DB_USER']}:{config['DB_PASSWORD']}"
+    f"@/{config['DB_NAME']}?unix_socket=/cloudsql/{config['DB_CONNECTION_NAME']}"
+)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    password = db.Column(db.String(80), nullable=False)
+
+    def __repr__(self):
+        return '<User %r>' % self.username
 
 @app.route('/api/login', methods=['POST'])
 def items_endpoint():
