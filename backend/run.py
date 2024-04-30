@@ -41,13 +41,12 @@ def items_endpoint():
         password = str(item['password'])
         encrypted_password = hashlib.sha256(password.encode()).hexdigest()
         encrypted_password = bytes(encrypted_password, 'utf-8')
-        print(encrypted_password)
         cursor = conn.cursor()
         if not isNewUser:
             cursor.callproc('check_user_credentials', [username, encrypted_password])
             result = cursor.fetchall()
             cursor.close()
-            print(result)
+   
             if len(result) == 0:
                 return jsonify({"login": False}), 200
             else:
@@ -71,7 +70,7 @@ def stories_endpoint():
         cursor.execute("SELECT location FROM stories GROUP BY location")
         result = cursor.fetchall()
         result = [location[0] for location in result]
-        print(result)
+
         cursor.close()
         return jsonify(result), 200
     
@@ -84,7 +83,7 @@ def story_endpoint():
         location = request.args.get('location')
         cursor.execute("SELECT story FROM stories WHERE id = (SELECT MIN(id) FROM stories WHERE location= \"{}\");".format(location))
         result = cursor.fetchall()
-        print(result[0][0])
+    
         response = {"prompt": result[0][0]}
         username = request.args.get('username')
         if username is not None:
@@ -142,13 +141,10 @@ def get_history():
         range_end = range_end + " 23:59:59"
         range_start = datetime.strptime(range_start, "%Y-%m-%d %H:%M:%S")
         range_end = datetime.strptime(range_end, "%Y-%m-%d %H:%M:%S")
-        print(range_start)
-        print(range_end)
+
         cursor.execute("SELECT location, timestamp FROM userHistory WHERE username = %s AND timestamp BETWEEN %s AND %s", (username, range_start, range_end))
         result = cursor.fetchall()
-        # convert to array
         result = [{"location": location, "timestamp": timestamp} for location, timestamp in result]
-        print(result)
         return jsonify(result), 200
 
 @app.route('/api/story/choices', methods=['GET', 'POST'])
