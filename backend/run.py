@@ -7,7 +7,7 @@ import pymysql
 import hashlib
 import dotenv
 from flask_sqlalchemy import SQLAlchemy
-import datetime
+from datetime import datetime
 
 dotenv.load_dotenv()
 config = dotenv.dotenv_values()
@@ -138,13 +138,18 @@ def get_history():
         username = request.args.get('username')
         range_start = request.args.get('rangeStart')
         range_end = request.args.get('rangeEnd')
+        range_start = range_start + " 00:00:00"
+        range_end = range_end + " 23:59:59"
+        range_start = datetime.strptime(range_start, "%Y-%m-%d %H:%M:%S")
+        range_end = datetime.strptime(range_end, "%Y-%m-%d %H:%M:%S")
         print(range_start)
         print(range_end)
-        range_start = datetime.datetime.strptime(range_start, "%Y-%m-%d")
-        range_end = datetime.datetime.strptime(range_end, "%Y-%m-%d")
         cursor.execute("SELECT location, timestamp FROM userHistory WHERE username = %s AND timestamp BETWEEN %s AND %s", (username, range_start, range_end))
         result = cursor.fetchall()
+        # convert to array
+        result = [{"location": location, "timestamp": timestamp} for location, timestamp in result]
         print(result)
+        return jsonify(result), 200
 
 @app.route('/api/story/choices', methods=['GET', 'POST'])
 def get_choices():
